@@ -1,3 +1,4 @@
+
 # -*- coding: utf-8 -*-
 """
 Created on Mon Aug 15 15:38:16 2016
@@ -10,29 +11,10 @@ Minimal character-level Vanilla RNN model. Written by Andrej Karpathy (@karpathy
 BSD License
 """
 
-#import json
+# Run on cleaned Shakespeare text in input.txt file 
 
 import os
 os.chdir(r"C:\Users\s6324900\Desktop\Deep learning\RNN")
-"""
-#csv_file = input('wiil_play_text.csv')
-#txt_file = input('will_play_text.txt')
-
-text_list = []
-import csv
-with open("will_play_text.csv", "rb") as my_input_file:
-    datareader = csv.reader(my_input_file)
-    for line in datareader:
-        line = line.split(",", 2)
-        text_list.append(" ".join(line))
-
-with open(txt_file, "w") as my_output_file:
-    my_output_file.write("#1\n")
-    my_output_file.write("double({},{})\n".format(len(text_list), 2))
-    for line in text_list:
-        my_output_file.write("  " + line)
-    print('File Successfully written.')
-"""
 
 import numpy as np
 

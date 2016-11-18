@@ -189,7 +189,7 @@ from keras.models import model_from_json
 
 # serialize model to JSON
 model_json = model.to_json()
-with open("model.json", "w") as json_file:
+with open("model.json2", "w") as json_file:
     json_file.write(model_json)
 # serialize weights to HDF5
 
@@ -214,5 +214,6 @@ with open('test.csv', 'wb') as f:
 
 
 #You can try an even smaller learning rate
+## Do image augmentation too
 # with sgd on test set - 1.81. Very bad!
 ## Using adam - 1.78

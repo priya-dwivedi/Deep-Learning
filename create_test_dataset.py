@@ -57,6 +57,7 @@ try:
   f = open(pickle_file, 'wb')
   save = {
     'dataset_test': dataset_test,
+    'img_nm': img_nm
     }
   pickle.dump(save, f, pickle.HIGHEST_PROTOCOL)
   f.close()

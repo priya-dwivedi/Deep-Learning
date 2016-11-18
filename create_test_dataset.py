@@ -16,7 +16,8 @@ image_files = 1000 #Update
 image_size = 128
 pixel_depth = 255
 size = 128, 128
-dataset_test = np.ndarray(shape=(image_files, image_size, image_size), dtype=np.float32) #Update
+dataset_test = np.ndarray(shape=(image_files, image_size, image_size), dtype=np.float32)#Update
+img_nm = []
 newpath1 = os.path.join(test_path,'*.jpg')
 for infile in glob.glob(newpath1):
     outfile = os.path.splitext(infile)[0] + ".small"
@@ -38,6 +39,7 @@ for filename in glob.glob(newpath2):
             raise Exception('Unexpected image shape: %s' % str(image_data.shape))
         dataset_test[num_images, :, :] = image_data #Update
         name = os.path.basename(filename)
+        img_nm.append(name.split(".")[0])
         num_images = num_images + 1
     except IOError as e:
         print('Could not read:', filename, ':', e, '- it\'s ok, skipping.')
@@ -61,3 +63,6 @@ try:
 except Exception as e:
   print('Unable to save data to', pickle_file, ':', e)
   raise
+
+print(len(img_nm))
+print(img_nm[:50])

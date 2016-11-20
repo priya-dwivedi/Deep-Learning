@@ -5,7 +5,7 @@ from keras.preprocessing.image import ImageDataGenerator
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, Activation, Flatten
 from keras.layers import Convolution2D, MaxPooling2D, ZeroPadding2D
-from keras.optimizers import SGD, Adam
+from keras.optimizers import SGD, Adam, RMSprop
 from keras.utils import np_utils
 from keras.regularizers import l2, activity_l2
 
@@ -16,7 +16,7 @@ import scipy as sp
 import matplotlib.pyplot as plt
 
 # Add path where the train images are unzipped and stored
-paths = "/home/animesh/Documents/Kaggle/fisheries"
+paths = "/home/animesh/Documents/Kaggle/Fisheries"
 os.chdir(paths)
 print(paths)
 
@@ -34,7 +34,7 @@ with open(pickle_file, 'rb') as f:
     print('Validation set', X_valid.shape, y_valid.shape)
 
 #Load test dataset
-pickle_file = 'kaggle_test_gray.pickle'
+pickle_file = 'kaggle_test_gray1.pickle'
 
 with open(pickle_file, 'rb') as f:
     save = pickle.load(f)
@@ -50,9 +50,9 @@ target_train  = np.concatenate((y_train, y_valid))
 
 ##Image preprocessing
 datagen = ImageDataGenerator(
-    featurewise_center=False,  # set input mean to 0 over the dataset
+    featurewise_center=True,  # set input mean to 0 over the dataset
     samplewise_center=True,  # set each sample mean to 0
-    featurewise_std_normalization=False,  # divide inputs by std of the dataset
+    featurewise_std_normalization=True,  # divide inputs by std of the dataset
     samplewise_std_normalization=True,  # divide each input by its std
     zca_whitening=False,  # apply ZCA whitening
     rotation_range=0,  # randomly rotate images in the range (degrees, 0 to 180)
@@ -67,7 +67,7 @@ datagen.fit(dataset_test)
 # split the full dataset into 80% test and 20% validation
 from sklearn import cross_validation
 X_train, X_valid, y_train, y_valid = cross_validation.train_test_split(
-dataset_train, target_train, test_size=0.25, random_state=2865)
+dataset_train, target_train, test_size=0.25, random_state=2543)
 
 print("train dataset", X_train.shape, y_train.shape)
 print("Validation dataset", X_valid.shape, y_valid.shape)
@@ -76,7 +76,7 @@ print("Validation dataset", X_valid.shape, y_valid.shape)
 # Define some initial parameters
 batch_size = 32
 nb_classes = 8
-nb_epoch = 70
+nb_epoch = 25
 
 # input image dimensions
 img_rows, img_cols = 128, 128
@@ -106,18 +106,17 @@ model = Sequential()
 model.add(ZeroPadding2D((1, 1), input_shape=X_train.shape[1:]))
 # Step 1: Convolution Layer with patch size = 3, stride = 1, same padding an depth = 16
 # Activation function - RELU. Added L2 regularization with weight decay of 0.01
-model.add(Convolution2D(16, 3, 3, W_regularizer=l2(0.001), init = 'he_normal'))
+model.add(Convolution2D(8, 3, 3, W_regularizer=l2(0.001), init = 'he_normal'))
 model.add(Activation('relu'))
 
 # Step 2: Convolution Layer with patch size = 3, stride = 1, same padding an depth = 16
 # Activation function - RELU. Added L2 regularization with weight decay of 0.01
 model.add(ZeroPadding2D((1, 1)))
-model.add(Convolution2D(16, 3, 3, W_regularizer=l2(0.001),init = 'he_normal'))
+model.add(Convolution2D(8, 3, 3, W_regularizer=l2(0.001),init = 'he_normal'))
 model.add(Activation('relu'))
 
 # Step3 : First Maxpool with kernel size = 2 and stride = 2
 model.add(MaxPooling2D(pool_size=(2, 2),strides=(2, 2)))
-#model.add(Dropout(0.25))
 
 # Step 4: Convolution Layer with patch size = 3, stride = 1, same padding an depth = 32
 # Activation function - RELU
@@ -131,28 +130,29 @@ model.add(Convolution2D(32, 3, 3, W_regularizer=l2(0.001),init = 'he_normal'))
 model.add(Activation('relu'))
 # Step6 : Second Maxpool with kernel size = 2 and stride = 2
 model.add(MaxPooling2D(pool_size=(2, 2),strides=(2, 2)))
-#model.add(Dropout(0.25))
+
 
 #Step 7: Dense layer with 256 neurons, RELU activation and L2 regulization with weight decay = 0.01
 model.add(Flatten())
-model.add(Dense(128, W_regularizer=l2(0.001), init = 'he_normal'))
+model.add(Dense(256, W_regularizer=l2(0.001), init = 'he_normal'))
 model.add(Activation('relu'))
-model.add(Dropout(0.5))
+model.add(Dropout(0.5273))
 
 #Step 8: Dense layer with 128 neurons, RELU activation and L2 regulization with weight decay = 0.01
-model.add(Dense(56, W_regularizer=l2(0.01), init = 'he_normal'))
+model.add(Dense(56, W_regularizer=l2(0.001), init = 'he_normal'))
 model.add(Activation('relu'))
-model.add(Dropout(0.5))
+model.add(Dropout(0.4057))
 
 #Step 9: Output Layer for number of classes and Softmax activation
 model.add(Dense(nb_classes))
 model.add(Activation('softmax'))
 
 # let's train the model using SGD + momentum (how original).
-sgd = SGD(lr=0.001, decay=1e-6, momentum=0.8, nesterov=True)
+#sgd = SGD(lr=0.001, decay=1e-6, momentum=0.8, nesterov=True)
 #adam = Adam(lr=0.0009, beta_1=0.9, beta_2=0.999, epsilon=1e-08, decay=0.0)
+rmsprop = RMSprop(lr=0.001, rho=0.9, epsilon=1e-08, decay=0.0)
 model.compile(loss='categorical_crossentropy',
-              optimizer=sgd,
+              optimizer=rmsprop,
               metrics=['accuracy'])
 
 
@@ -188,6 +188,18 @@ plt.xlabel('epoch')
 plt.legend(['train', 'test'], loc='upper left')
 plt.show()
 
+res = model.evaluate(X_valid, Y_valid)
+print(res)
+
+Y_valid_pred = model.predict(X_valid)
+print(Y_valid_pred[:5])
+print(Y_valid_pred.shape)
+
+print(Y_valid[:5])
+
+from sklearn.metrics import log_loss
+print(log_loss(Y_valid, Y_valid_pred))
+
 from keras.models import model_from_json
 
 # serialize model to JSON
@@ -203,6 +215,7 @@ print("Saved model to disk")
 test_pred = model.predict(X_test, batch_size=32)
 print(test_pred[:5])
 print(len(test_pred))
+
 
 # Export results to CSV file
 import csv

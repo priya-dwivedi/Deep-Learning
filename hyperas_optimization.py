@@ -1,19 +1,28 @@
+
+
 from __future__ import print_function
-from hyperopt import Trials, STATUS_OK, tpe
-from hyperas import optim
-from hyperas.distributions import choice, uniform, conditional
+from hyperopt import fmin, tpe, hp, STATUS_OK, Trials
 from keras.preprocessing.image import ImageDataGenerator
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, Activation, Flatten
-from keras.layers import Convolution2D, MaxPooling2D
-from keras.optimizers import SGD, Adam
+from keras.layers import Convolution2D, MaxPooling2D, ZeroPadding2D
+from keras.optimizers import SGD, Adam, RMSprop
 from keras.utils import np_utils
 from keras.regularizers import l2, activity_l2
 
 
+from six.moves import cPickle as pickle
+import numpy as np
+import os
+import sys
+import scipy as sp
+import matplotlib.pyplot as plt
+
+
 # Add path where the train images are unzipped and stored
-paths = "/home/animesh/Documents/Kaggle/Fisheries"
+paths = "/home/animesh/Documents/Kaggle/fisheries"
 os.chdir(paths)
+print(paths)
 
 # Load pickled dataset - For future runs. This step can be skipped
 pickle_file = 'all_fish_gray.pickle'
@@ -29,12 +38,43 @@ with open(pickle_file, 'rb') as f:
     print('Validation set', X_valid.shape, y_valid.shape)
 
 #Load test dataset
-pickle_file = '/home/animesh/Documents/Kaggle/Fisheries/test_stg1/kaggle_test_gray.pickle'
+pickle_file = 'kaggle_test_gray.pickle'
 
 with open(pickle_file, 'rb') as f:
     save = pickle.load(f)
     dataset_test = save['dataset_test']
+    img_nm = save['img_nm']
     del save  # hint to help gc free up memory
+
+
+## Reshuffle train set
+## Concatenate into one master dataset
+dataset_train = np.concatenate((X_train, X_valid))
+target_train  = np.concatenate((y_train, y_valid))
+
+##Image preprocessing
+datagen = ImageDataGenerator(
+    featurewise_center=False,  # set input mean to 0 over the dataset
+    samplewise_center=True,  # set each sample mean to 0
+    featurewise_std_normalization=False,  # divide inputs by std of the dataset
+    samplewise_std_normalization=True,  # divide each input by its std
+    zca_whitening=False,  # apply ZCA whitening
+    rotation_range=0,  # randomly rotate images in the range (degrees, 0 to 180)
+    width_shift_range=0,  # randomly shift images horizontally (fraction of total width)
+    height_shift_range=0,  # randomly shift images vertically (fraction of total height)
+    horizontal_flip=False,  # randomly flip images
+    vertical_flip=False)  # randomly flip images
+
+datagen.fit(dataset_train)
+datagen.fit(dataset_test)
+
+# split the full dataset into 80% test and 20% validation
+from sklearn import cross_validation
+X_train, X_valid, y_train, y_valid = cross_validation.train_test_split(
+dataset_train, target_train, test_size=0.25, random_state=2865)
+
+print("train dataset", X_train.shape, y_train.shape)
+print("Validation dataset", X_valid.shape, y_valid.shape)
 
 # Define some initial parameters
 batch_size = 32
@@ -64,97 +104,99 @@ Y_valid = np_utils.to_categorical(y_valid, nb_classes)
 print('Train set', X_train.shape, Y_train.shape)
 print('Validation set', X_valid.shape, Y_valid.shape)
 
-def data():
-    '''
-    Data providing function:
+space = {
 
-    This function is separated from model() so that hyperopt
-    won't reload data for each evaluation run.
-    '''
-    (X_train, y_train), (X_test, y_test) = mnist.load_data()
-    X_train = X_train.reshape(60000, 784)
-    X_test = X_test.reshape(10000, 784)
-    X_train = X_train.astype('float32')
-    X_test = X_test.astype('float32')
-    X_train /= 255
-    X_test /= 255
-    nb_classes = 10
-    Y_train = np_utils.to_categorical(y_train, nb_classes)
-    Y_test = np_utils.to_categorical(y_test, nb_classes)
-    return X_train, Y_train, X_test, Y_test
+            'depth1': hp.choice('depth1',[8,16,32]),
+            'depth2': hp.choice('depth2',[16,32,64]),
 
+            'dense1': hp.choice('dense1',[56,128,256]),
+            'dense2': hp.choice('dense2',[28,56,128]),
 
-def model(X_train, Y_train, X_valid, Y_valid):
-    '''
-    Model providing function:
+            'dropout1': hp.uniform('dropout1', .25,.75),
+            'dropout2': hp.uniform('dropout2',  .25,.75),
 
-    Create Keras model with double curly brackets dropped-in as needed.
-    Return value has to be a valid python dictionary with two customary keys:
-        - loss: Specify a numeric evaluation metric to be minimized
-        - status: Just use STATUS_OK and see hyperopt documentation if not feasible
-    The last one is optional, though recommended, namely:
-        - model: specify the model just created so that we can later use it again.
-    '''
+            'nb_epochs' :  hp.choice('nb_epochs',[30, 50,70,90]),
+            'batch_size' :  hp.choice('batch_size',[32,64]),
+            'optimizer': hp.choice('optimizer',['sgd','adam','rmsprop']),
+        }
+
+def f_nn(params):
+
+    print ('Params testing: ', params)
     model = Sequential()
-    # First Conv pair
-    model.add(Convolution2D({{choice([8, 16, 32])}}, 3, 3, border_mode='same',
-                            input_shape=X_train.shape[1:], W_regularizer=l2(0.01), init='he_normal'))
+    model.add(ZeroPadding2D((1, 1), input_shape=X_train.shape[1:]))
+    # Step 1: Convolution Layer with patch size = 3, stride = 1, same padding an depth = 16
+    # Activation function - RELU. Added L2 regularization with weight decay of 0.01
+    model.add(Convolution2D(params['depth1'], 3, 3, W_regularizer=l2(0.001), init='he_normal'))
     model.add(Activation('relu'))
 
-    model.add(Convolution2D({{choice([8, 16, 32])}}, 3, 3, W_regularizer=l2(0.01), init='he_normal'))
+    # Step 2: Convolution Layer with patch size = 3, stride = 1, same padding an depth = 16
+    # Activation function - RELU. Added L2 regularization with weight decay of 0.01
+    model.add(ZeroPadding2D((1, 1)))
+    model.add(Convolution2D(params['depth1'], 3, 3, W_regularizer=l2(0.001), init='he_normal'))
     model.add(Activation('relu'))
 
+    # Step3 : First Maxpool with kernel size = 2 and stride = 2
+    model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2)))
 
-    model.add(MaxPooling2D(pool_size=(2, 2)))
-    model.add(Dropout({{uniform(0, 1)}})
-
-
-    model.add(Convolution2D({{choice([16, 32, 64])}}, 3, 3, border_mode='same',
-                            input_shape=X_train.shape[1:], W_regularizer=l2(0.01), init='he_normal'))
+    # Step 4: Convolution Layer with patch size = 3, stride = 1, same padding an depth = 32
+    # Activation function - RELU
+    model.add(ZeroPadding2D((1, 1)))
+    model.add(Convolution2D(params['depth2'], 3, 3, W_regularizer=l2(0.001), init='he_normal'))
     model.add(Activation('relu'))
 
-    model.add(Convolution2D({{choice([16, 32, 64])}}, 3, 3, W_regularizer=l2(0.01), init='he_normal'))
+    # Step 5: Convolution Layer with patch size = 3, stride = 1, same padding an depth = 32
+    # Activation function - RELU
+    model.add(ZeroPadding2D((1, 1)))
+    model.add(Convolution2D(params['depth2'], 3, 3, W_regularizer=l2(0.001), init='he_normal'))
     model.add(Activation('relu'))
 
+    # Step6 : Second Maxpool with kernel size = 2 and stride = 2
+    model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2)))
+    # model.add(Dropout(0.25))
 
-    model.add(MaxPooling2D(pool_size=(2, 2)))
-    model.add(Dropout({{uniform(0, 1)}})
-
-    # Dense Layer
+    # Step 7: Dense layer with 256 neurons, RELU activation and L2 regulization with weight decay = 0.01
     model.add(Flatten())
-    model.add(Dense({{choice([128, 256, 512])}}, W_regularizer=l2(0.01), init='he_normal'))
+    model.add(Dense(params['dense1'], W_regularizer=l2(0.001), init='he_normal'))
     model.add(Activation('relu'))
-    model.add(Dropout({{uniform(0, 1)}})
+    model.add(Dropout(params['dropout1']))
 
     # Step 8: Dense layer with 128 neurons, RELU activation and L2 regulization with weight decay = 0.01
-    model.add(Dense({{choice([64, 128, 256])}}, W_regularizer=l2(0.01), init='he_normal'))
+    model.add(Dense(params['dense2'], W_regularizer=l2(0.01), init='he_normal'))
     model.add(Activation('relu'))
-    model.add(Dropout({{uniform(0, 1)}})
+    model.add(Dropout(params['dropout2']))
 
     # Step 9: Output Layer for number of classes and Softmax activation
     model.add(Dense(nb_classes))
     model.add(Activation('softmax'))
 
+    model.compile(loss='categorical_crossentropy', optimizer=params['optimizer'])
 
-    model.compile(loss='categorical_crossentropy', metrics=['accuracy'],
-                  optimizer={{choice(['rmsprop', 'adam', 'sgd'])}})
-
-    model.fit(X_train, Y_train,
-              batch_size={{choice([32, 64])}},
-              nb_epoch=1,
-              show_accuracy=True,
+    model.fit(X_train, Y_train, nb_epoch=params['nb_epochs'], batch_size= params['batch_size'],show_accuracy=True,
               verbose=2,
-              validation_data=(X_test, Y_valid))
-    score, acc = model.evaluate(X_test, Y_test, verbose=0)
-    print('Test accuracy:', acc)
-    return {'loss': -acc, 'status': STATUS_OK, 'model': model}
+              validation_data=(X_valid, Y_valid))
 
-if __name__ == '__main__':
-    best_run, best_model = optim.minimize(model=model,
-                                          data=data,
-                                          algo=tpe.suggest,
-                                          max_evals=5,
-                                          trials=Trials())
-    X_train, Y_train, X_test, Y_test = data()
-    print("Evalutation of best performing model:")
-    print(best_model.evaluate(X_test, Y_test))
+    res = model.evaluate(X_valid,Y_valid, batch_size=32)
+    print('Result:', res)
+    sys.stdout.flush()
+    return {'loss': res, 'status': STATUS_OK}
+
+
+trials = Trials()
+best = fmin(f_nn, space, algo=tpe.suggest, max_evals=20, trials=trials)
+print('best: ')
+print(best)
+
+
+# ## Results - RMSProp is better than Adam or SGD for this problem. Other chosen best parameters are:
+# best:
+# {'optimizer': 1, 'batch_size': 0, 'depth2': 1, 'depth1': 0, 'dense1': 2, 'dense2': 1, 'nb_epochs': 1, 'dropout2': 0.405772180563795, 'dropout1': 0.5273961457821672}
+# optimizer: Adam
+# batch_size: 32
+# depth2: 32
+# depth1 : 8
+# dense1: 256
+# dense2:56
+# nb_epoch: 50
+# dropout2': 0.405772180563795,
+# dropout1': 0.5273961457821672

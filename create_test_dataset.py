@@ -19,7 +19,7 @@ size = 128, 128
 dataset_test = np.ndarray(shape=(image_files, image_size, image_size), dtype=np.float32)#Update
 img_nm = []
 newpath1 = os.path.join(test_path,'*.jpg')
-for infile in glob.glob(newpath1):
+for infile in sorted(glob.glob(newpath1)):
     outfile = os.path.splitext(infile)[0] + ".small"
     file, ext = os.path.splitext(infile)
     im = Image.open(infile).convert('L')
@@ -30,7 +30,7 @@ newpath2 = os.path.join(test_path, "*.small")
 image_size = 128
 pixel_depth = 255
 num_images = 0
-for filename in glob.glob(newpath2):
+for filename in sorted(glob.glob(newpath2)):
 
     if num_images % 500 == 0: print(num_images)
     try:
@@ -51,7 +51,7 @@ print('Dataset Max:', np.amax(dataset_test))
 print('Dataset Min:', np.amin(dataset_test))
 
 # Pickle this dataset for future use
-pickle_file = 'kaggle_test_gray.pickle'
+pickle_file = 'kaggle_test_gray1.pickle'
 
 try:
   f = open(pickle_file, 'wb')

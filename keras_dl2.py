@@ -1,5 +1,7 @@
 
 
+
+
 from __future__ import print_function
 from keras.preprocessing.image import ImageDataGenerator
 from keras.models import Sequential
@@ -34,7 +36,7 @@ with open(pickle_file, 'rb') as f:
     print('Validation set', X_valid.shape, y_valid.shape)
 
 #Load test dataset
-pickle_file = 'kaggle_test_gray.pickle1'
+pickle_file = 'kaggle_test_gray1.pickle'
 
 with open(pickle_file, 'rb') as f:
     save = pickle.load(f)
@@ -48,6 +50,7 @@ print(img_nm[:50])
 dataset_train = np.concatenate((X_train, X_valid))
 target_train  = np.concatenate((y_train, y_valid))
 
+print(np.unique(target_train, return_counts= True))
 ##Image preprocessing
 ##Image preprocessing
 datagen = ImageDataGenerator(
@@ -68,7 +71,7 @@ datagen.fit(dataset_test)
 # Define some initial parameters
 batch_size = 32
 nb_classes = 8
-nb_epoch = 25
+
 
 # input image dimensions
 img_rows, img_cols = 128, 128
@@ -84,15 +87,18 @@ def reshape(dataset):
 dataset_train= reshape(dataset_train)
 X_test = reshape(dataset_test)
 
+print(target_train.shape)
 # convert class vectors to binary class matrices
 target_train = np_utils.to_categorical(target_train, nb_classes)
 
 print('Data set', dataset_train.shape, target_train.shape)
 
+img_aug = True
+nb_epoch = 50
 ## Start programming layers
 def create_model():
     model = Sequential()
-    model.add(ZeroPadding2D((1, 1), input_shape=X_train.shape[1:]))
+    model.add(ZeroPadding2D((1, 1), input_shape=dataset_train.shape[1:]))
     # Step 1: Convolution Layer with patch size = 3, stride = 1, same padding an depth = 16
     # Activation function - RELU. Added L2 regularization with weight decay of 0.01
     model.add(Convolution2D(8, 3, 3, W_regularizer=l2(0.001), init='he_normal'))
@@ -106,6 +112,7 @@ def create_model():
 
     # Step3 : First Maxpool with kernel size = 2 and stride = 2
     model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2)))
+    model.add(Dropout(0.25))
 
     # Step 4: Convolution Layer with patch size = 3, stride = 1, same padding an depth = 32
     # Activation function - RELU
@@ -119,6 +126,7 @@ def create_model():
     model.add(Activation('relu'))
     # Step6 : Second Maxpool with kernel size = 2 and stride = 2
     model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2)))
+    model.add(Dropout(0.25))
 
     #Step 7: Dense layer with 256 neurons, RELU activation and L2 regulization with weight decay = 0.01
     model.add(Flatten())
@@ -136,28 +144,55 @@ def create_model():
     model.add(Activation('softmax'))
 
     # let's train the model using SGD + momentum (how original).
-    #sgd = SGD(lr=0.001, decay=1e-6, momentum=0.8, nesterov=True)
-    #adam = Adam(lr=0.0009, beta_1=0.9, beta_2=0.999, epsilon=1e-08, decay=0.0)
-    rmsprop = RMSprop(lr=0.001, rho=0.9, epsilon=1e-08, decay=0.0)
+    sgd = SGD(lr=0.001, decay=1e-6, momentum=0.8, nesterov=True)
+    adam = Adam(lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=1e-08, decay=0.0)
+    rmsprop = RMSprop(lr=0.0005, rho=0.9, epsilon=1e-08, decay=0.0)
     model.compile(loss='categorical_crossentropy',
                   optimizer=rmsprop,
                   metrics=['accuracy'])
     return model
 
 def train_model(model, train_data, labels_train, test_data, labels_test):
-    model.fit(train_data, labels_train,
-                        batch_size=batch_size,
-                        nb_epoch=nb_epoch,
-                        validation_data=(test_data, labels_test),
-                        verbose=2)
+    datagen_im = ImageDataGenerator(
+        featurewise_center=False,  # set input mean to 0 over the dataset
+        samplewise_center=False,  # set each sample mean to 0
+        featurewise_std_normalization=False,  # divide inputs by std of the dataset
+        samplewise_std_normalization=False,  # divide each input by its std
+        zca_whitening=False,  # apply ZCA whitening
+        rotation_range=10,  # randomly rotate images in the range (degrees, 0 to 180)
+        width_shift_range=0.1,  # randomly shift images horizontally (fraction of total width)
+        height_shift_range=0.1,  # randomly shift images vertically (fraction of total height)
+        shear_range=0.0,
+        zoom_range=0.2,  # Zooms images
+        horizontal_flip=False,  # randomly flip images
+        fill_mode='nearest',  # Fill any gaps in pixels
+        vertical_flip=False)  # randomly flip images
+
+    if not img_aug:
+        print('Not using data augmentation.')
+        history = model.fit(train_data, labels_train,
+                            batch_size=batch_size,
+                            nb_epoch=nb_epoch,
+                            validation_data=(test_data, labels_test),
+                            shuffle=True,
+                            verbose=2)
+    else:
+        print('Using real-time data augmentation.')
+        datagen_im.fit(X_train)
+
+        # fits the model on batches with real-time data augmentation:
+        model.fit_generator(datagen_im.flow(train_data, labels_train, batch_size=32),
+                                      samples_per_epoch=len(train_data), nb_epoch=nb_epoch,
+                                      validation_data=(test_data, labels_test),
+                                      verbose=2)
 
 
-if __name__ == "__main__":
-    n_folds = 5
-    i=0
-    kf = KFold(len(target_train), n_folds=n_folds, shuffle=True)
+#if __name__ == "__main__":
+n_folds = 5
+i=0
+kf = KFold(len(target_train), n_folds=n_folds, shuffle=True)
 
-    for train_index, test_index in kf:
+for train_index, test_index in kf:
             print("Running Fold", i+1, "/", n_folds)
             ## Create datasets
             train_data = dataset_train[train_index]
@@ -170,8 +205,8 @@ if __name__ == "__main__":
             i += 1
 
 # To comment - Ctrl + / ; To uncomment: ctrl +  /
-from sklearn.metrics import log_loss
-print(log_loss(dataset_train, target_train))
+# from sklearn.metrics import log_loss
+# print(log_loss(dataset_train, target_train))
 
 
 paths = "/home/animesh/Documents/Kaggle/Fisheries"

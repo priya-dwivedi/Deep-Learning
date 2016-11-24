@@ -1,7 +1,5 @@
 
 
-
-
 from __future__ import print_function
 from keras.preprocessing.image import ImageDataGenerator
 from keras.models import Sequential
@@ -205,9 +203,6 @@ for train_index, test_index in kf:
             i += 1
 
 # To comment - Ctrl + / ; To uncomment: ctrl +  /
-# from sklearn.metrics import log_loss
-# print(log_loss(dataset_train, target_train))
-
 
 paths = "/home/animesh/Documents/Kaggle/Fisheries"
 os.chdir(paths)
@@ -219,8 +214,8 @@ with open("model.json1", "w") as json_file:
     json_file.write(model_json)
 # serialize weights to HDF5
 
-#model.save_weights("dl1_sgd.h5")
-#print("Saved model to disk")
+model.save_weights("dl1_sgd.h5")
+print("Saved model to disk")
 
 
 test_pred = model.predict(X_test, batch_size=32)
@@ -239,6 +234,4 @@ with open('test2.csv', 'wb') as f:
         i+= 1
 
 
-#You can try an even smaller learning rate
-# with sgd on test set - 1.81. Very bad!
-## Using adam - 1.399
+#LB score: 1.40708

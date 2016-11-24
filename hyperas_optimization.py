@@ -2,6 +2,9 @@
 
 from __future__ import print_function
 from hyperopt import fmin, tpe, hp, STATUS_OK, Trials
+#from hyperas import optim
+#from optim import *
+#from distributions import choice, uniform, conditional
 from keras.preprocessing.image import ImageDataGenerator
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, Activation, Flatten
@@ -173,7 +176,7 @@ def f_nn(params):
     model.compile(loss='categorical_crossentropy', optimizer=params['optimizer'])
 
     model.fit(X_train, Y_train, nb_epoch=params['nb_epochs'], batch_size= params['batch_size'],show_accuracy=True,
-              verbose=2,
+              verbos======e=2,
               validation_data=(X_valid, Y_valid))
 
     res = model.evaluate(X_valid,Y_valid, batch_size=32)
@@ -188,15 +191,3 @@ print('best: ')
 print(best)
 
 
-# ## Results - RMSProp is better than Adam or SGD for this problem. Other chosen best parameters are:
-# best:
-# {'optimizer': 1, 'batch_size': 0, 'depth2': 1, 'depth1': 0, 'dense1': 2, 'dense2': 1, 'nb_epochs': 1, 'dropout2': 0.405772180563795, 'dropout1': 0.5273961457821672}
-# optimizer: Adam
-# batch_size: 32
-# depth2: 32
-# depth1 : 8
-# dense1: 256
-# dense2:56
-# nb_epoch: 50
-# dropout2': 0.405772180563795,
-# dropout1': 0.5273961457821672

@@ -1,7 +1,7 @@
 <annotation>
-	<folder>toy_images</folder>
-	<filename>toy2.jpg</filename>
-	<path>/home/animesh/Documents/grocery_detection/toy_exptt/toy_images/toy2.jpg</path>
+	<folder>images</folder>
+	<filename>toy4.jpg</filename>
+	<path>/home/ivan/projects/ai/Deep-Learning/tensorflow_toy_detector/images/toy4.jpg</path>
 	<source>
 		<database>Unknown</database>
 	</source>
@@ -17,10 +17,10 @@
 		<truncated>0</truncated>
 		<difficult>0</difficult>
 		<bndbox>
-			<xmin>192</xmin>
-			<ymin>81</ymin>
-			<xmax>308</xmax>
-			<ymax>221</ymax>
+			<xmin>86</xmin>
+			<ymin>51</ymin>
+			<xmax>347</xmax>
+			<ymax>249</ymax>
 		</bndbox>
 	</object>
 </annotation>

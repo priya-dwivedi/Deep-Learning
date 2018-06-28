@@ -1,0 +1,26 @@
+<annotation>
+	<folder>toy_images</folder>
+	<filename>toy80.jpg</filename>
+	<path>/home/animesh/Documents/grocery_detection/toy_exptt/toy_images/toy80.jpg</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>500</width>
+		<height>300</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>toy</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>25</xmin>
+			<ymin>74</ymin>
+			<xmax>265</xmax>
+			<ymax>267</ymax>
+		</bndbox>
+	</object>
+</annotation>

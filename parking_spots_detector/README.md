@@ -1,5 +1,7 @@
 ### Parking Spots Detector
 
+[Link to Blog](https://towardsdatascience.com/find-where-to-park-in-real-time-using-opencv-and-tensorflow-4307a4c3da03)
+
 Contents:
 
 1. Video file - parking_video.mp4

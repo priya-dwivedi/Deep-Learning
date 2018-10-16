@@ -1,11 +1,13 @@
-# Deep-Learning
+### Deep-Learning
 
-This repository contains deep learning related projects I did as part of Kaggle submissions or for Udacity's Deep Learning Foundations Nano Degree.
+This repository contains deep learning related projects I have done over time. I am very passionate about deep learning and explore interesting ideas and tools. Each project is contained in its own folder.
 
-Projects Outline
+I have blogged about a lot of these projects on Medium - https://medium.com/@priya.dwivedi
 
-* Kaggle Fisheries - Keras convolution neural network developed to predict fish types for Kaggle competition
-https://www.kaggle.com/c/the-nature-conservancy-fisheries-monitoring
+I also run a deep learning consultancy - https://deeplearninganalytics.org/
 
-* Image Classification - CIFAR
-Work done as part of Udacity's deep learning foundations nano degree
+If you want to collaborate on a project please reach out through my website.
+
+Hope you enjoy cloning this repo and trying out things yourself
+
+

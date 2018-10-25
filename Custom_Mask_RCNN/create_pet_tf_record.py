@@ -46,7 +46,7 @@ flags.DEFINE_string('data_dir', '', 'Root directory to raw pet dataset.')
 flags.DEFINE_string('output_dir', '', 'Path to directory to output TFRecords.')
 flags.DEFINE_string('label_map_path', 'data/pet_label_map.pbtxt',
                     'Path to label map proto')
-flags.DEFINE_boolean('faces_only', True, 'If True, generates bounding boxes '
+flags.DEFINE_boolean('faces_only', False, 'If True, generates bounding boxes '
                      'for pet faces.  Otherwise generates bounding boxes (as '
                      'well as segmentations for full pet bodies).  Note that '
                      'in the latter case, the resulting files are much larger.')
@@ -65,7 +65,7 @@ def get_class_name_from_filename(file_name):
   Returns:
     A string of the class name.
   """
-  match = re.match(r'([A-Za-z_]+)(_[0-9]+\.jpg)', file_name, re.I)
+  match = re.match(r'([A-Za-z_]+)([0-9]+\.jpg)', file_name, re.I)
   return match.groups()[0]
 
 
@@ -118,10 +118,7 @@ def dict_to_tf_example(data,
     raise ValueError('Mask format not PNG')
 
   mask_np = np.asarray(mask)
-  nonbackground_indices_x = np.any(mask_np != 2, axis=0)
-  nonbackground_indices_y = np.any(mask_np != 2, axis=1)
-  nonzero_x_indices = np.where(nonbackground_indices_x)
-  nonzero_y_indices = np.where(nonbackground_indices_y)
+  nonzero = np.where(mask_np != 0)
 
   width = int(data['size']['width'])
   height = int(data['size']['height'])
@@ -148,10 +145,10 @@ def dict_to_tf_example(data,
       ymin = float(obj['bndbox']['ymin'])
       ymax = float(obj['bndbox']['ymax'])
     else:
-      xmin = float(np.min(nonzero_x_indices))
-      xmax = float(np.max(nonzero_x_indices))
-      ymin = float(np.min(nonzero_y_indices))
-      ymax = float(np.max(nonzero_y_indices))
+      xmin = float(np.min(nonzero[1]))
+      xmax = float(np.max(nonzero[1]))
+      ymin = float(np.min(nonzero[0]))
+      ymax = float(np.max(nonzero[0]))
 
     xmins.append(xmin / width)
     ymins.append(ymin / height)
@@ -163,7 +160,7 @@ def dict_to_tf_example(data,
     truncated.append(int(obj['truncated']))
     poses.append(obj['pose'].encode('utf8'))
     if not faces_only:
-      mask_remapped = (mask_np != 2).astype(np.uint8)
+      mask_remapped = (mask_np != 0).astype(np.uint8)
       masks.append(mask_remapped)
 
   feature_dict = {
@@ -231,7 +228,7 @@ def create_tf_record(output_filename,
     if idx % 100 == 0:
       logging.info('On image %d of %d', idx, len(examples))
     xml_path = os.path.join(annotations_dir, 'xmls', example + '.xml')
-    mask_path = os.path.join(annotations_dir, 'trimaps', example + '.png')
+    mask_path = os.path.join(annotations_dir, 'masks', example + '.png')
 
     if not os.path.exists(xml_path):
       logging.warning('Could not find %s, ignoring example.', xml_path)
@@ -259,7 +256,8 @@ def create_tf_record(output_filename,
 # TODO: Add test for pet/PASCAL main files.
 def main(_):
   data_dir = FLAGS.data_dir
-  label_map_dict = label_map_util.get_label_map_dict(FLAGS.label_map_path)
+  #label_map_dict = label_map_util.get_label_map_dict(FLAGS.label_map_path)
+  label_map_dict = label_map_util.get_label_map_dict('/tmp/label_map.pbtxt')
 
   logging.info('Reading from Pet dataset.')
   image_dir = os.path.join(data_dir, 'images')

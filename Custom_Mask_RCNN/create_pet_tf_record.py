@@ -257,7 +257,7 @@ def create_tf_record(output_filename,
 def main(_):
   data_dir = FLAGS.data_dir
   #label_map_dict = label_map_util.get_label_map_dict(FLAGS.label_map_path)
-  label_map_dict = label_map_util.get_label_map_dict('/tmp/label_map.pbtxt')
+  label_map_dict = label_map_util.get_label_map_dict('./label_map.pbtxt')
 
   logging.info('Reading from Pet dataset.')
   image_dir = os.path.join(data_dir, 'images')

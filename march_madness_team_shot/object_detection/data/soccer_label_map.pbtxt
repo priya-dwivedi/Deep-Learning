@@ -1,0 +1,13 @@
+item {
+  id: 1
+  name: 'player'
+}
+
+item {
+  id: 2
+  name: 'ball'
+}
+
+
+
+

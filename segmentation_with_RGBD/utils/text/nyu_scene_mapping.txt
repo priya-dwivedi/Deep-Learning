@@ -1,0 +1,48 @@
+### NYU 10-Scene Mapping ###
+
+NYU-v2: 27 Scene Types (Original)
+Class_Type              ID      Mapped_To   Sample_Amount
+“basement”              1           10          7
+“bathroom"              2           4           121
+"bedroom"               3           1           383
+"bookstore"             4           9           36
+"cafe"                  5           10          5
+"classroom"             6           8           49
+"computer_lab"          7           10          6
+"conference_room"       8           10          5
+"dinette"               9           10          4
+"dining_room"           10          5           117
+"exercise_room"         11          10          3
+"foyer"                 12          10          4
+"furniture_store"       13          10          27
+"home_office"           14          7           50
+"home_storage”          15          10          5
+"indoor_balcony"        16          10          2
+"kitchen"               17          2           225
+"laundry_room"          18          10          3
+"living_room"           19          3           221
+"office"                20          6           78
+"office_kitchen"        21          10          10
+"playroom"              22          10          31
+"printer_room"          23          10          3
+“reception_room"        24          10          17
+"student_lounge"        25          10          5
+"study"                 26          10          25
+"study_room"            27          10          7
+
+NYU-v2: 10 Scene Types (after Mapping)
+Class_Type              ID      Sample_Amount
+“bedroom”               1           383
+“kitchen"               2           225
+“living_room"           3           221
+“bathroom"              4           121
+"dining_room"           5           117
+"office"                6           78
+"home_office"           7           50
+"classroom"             8           49
+"bookstore"             9           36
+“others"                10          169
+
+Resources:
+“Perceptual Organization and Recognition of Indoor Scenes from RGB-D Images” by Saurabh Gupta
+“Modality and Component Aware Feature Fusion for RGB-D Scene Classification” by Anran Wang

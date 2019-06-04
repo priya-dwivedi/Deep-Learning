@@ -1,0 +1,25 @@
+
+=== Resume training
+python fusenet_train.py --dataroot ./datasets/nyu_class_10_db.h5 --resume_train True --batch_size 8 \
+                        --load_checkpoint ./checkpoints/may27_first_run/nyu/best_model.pth.tar --lr 0.005 --num_epochs 25
+
+
+
+
+============== Train RGB only encoder
+python fusenet_train.py --dataroot ./datasets/nyu_class_10_db.h5 --batch_size 8 --lr 0.005 \
+                        --num_epochs 125 
+
+
+
+========== Test Model
+
+python fusenet_test.py --dataroot ./datasets/nyu_class_10_db.h5 --load_checkpoint ./checkpoints/rgb_only/nyu/best_model.pth.tar --vis_results True
+
+
+Results
+RGB only - 125 epochs
+Seg_Glob_Acc: 0.580 IoU: 0.248 Mean_Acc: 0.361
+
+RGBD - 125 epochs
+Seg_Glob_Acc: 0.6096 IoU: 0.269 Mean_Acc: 0.376

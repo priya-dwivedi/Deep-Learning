@@ -28,6 +28,7 @@ python fusenet_train.py --dataroot ./datasets/nyu_class_10_db.h5 --batch_size 8 
 ```
 
 ### Resuming training from a checkpoint
+```
 
 python fusenet_train.py --dataroot ./datasets/nyu_class_10_db.h5 --resume_train True --batch_size 8 \
                         --load_checkpoint ./checkpoints/may27_first_run/nyu/best_model.pth.tar --lr 0.005 --num_epochs 25
@@ -38,6 +39,7 @@ python fusenet_train.py --dataroot ./datasets/nyu_class_10_db.h5 --resume_train 
 intersection over union, and mean accuracy.
 - vis_results is used to visualize the results on the test set
 - Example run command:
+```
 python fusenet_test.py --dataroot ./datasets/nyu_class_10_db.h5 --load_checkpoint ./checkpoints/rgb_only/nyu/best_model.pth.tar --vis_results True
 ```
 

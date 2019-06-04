@@ -8,7 +8,7 @@ This repository contains PyTorch implementation of FuseNet-SF5 architecture from
 Prerequisites:
 - python 3.6
 - Nvidia GPU + CUDA cuDNN
-```
+
 ## Datasets 
 
 ### [NYU-Depth V2](https://cs.nyu.edu/~silberman/datasets/nyu_depth_v2.html)

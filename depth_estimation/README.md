@@ -1,6 +1,11 @@
 ## [High Quality Monocular Depth Estimation via Transfer Learning (arXiv 2018)](https://arxiv.org/abs/1812.11941)
 **[Ibraheem Alhashim](https://ialhashim.github.io/)** and **Peter Wonka**
 
+The original code is at the repo [Dense Depth Original Code](https://github.com/ialhashim/DenseDepth)
+This version has been modified by me to 
+* Add support for different encoders
+* Test the effect of decreasing decoder length
+* Create cool visualizations by testing the model on self collected images and videos
 
 ## Requirements
 * This code is tested with Keras 2.2.4, Tensorflow 1.13, CUDA 9.0, on a machine with an NVIDIA Titan V and 16GB+ RAM running on Windows 10 or Ubuntu 16.
@@ -9,6 +14,9 @@
 
 ## Data
 * [NYU Depth V2 (50K)](https://s3-eu-west-1.amazonaws.com/densedepth/nyu_data.zip) (4.1 GB): You don't need to extract the dataset since the code loads the entire zip file into memory when training.
+
+## Download a pretrained model from the original paper
+* [NYU Depth V2](https://s3-eu-west-1.amazonaws.com/densedepth/nyu.h5) (165 MB)
 
 ## Training with DenseNet 169 encoder
 * Train from scratch: 
@@ -36,6 +44,20 @@ python train.py --data nyu --bs 5 --name resnet50_nyu --full --resnet
 
 ```
 python evaluate.py --model ./models/1557483797-n10138-e20-bs5-lr0.0001-densedepth_nyu/weights.06-0.12.h5
+```
+
+## Visualizations on images and videos outside the NYU Depth V2 data
+
+### Visualization on images outside the test set - displays image + predicted depth map
+Put the images in my_examples folder
+```
+python test.py --model ./models/1557483797-n10138-e20-bs5-lr0.0001-densedepth_nyu/weights.06-0.12.h5
+```
+
+### Visualization on videos outside the test set - displays image + predicted depth map
+Pass the checkpoint to the model. The results are stored in the folder called image_results
+```
+python test_video.py --model ./models/1557395533-n10138-e20-bs5-lr0.0001-densedepth_nyu/weights.03-0.12.h5 --input test_video.MOV
 ```
 
 ## Reference

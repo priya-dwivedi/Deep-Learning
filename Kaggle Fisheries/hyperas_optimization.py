@@ -176,7 +176,7 @@ def f_nn(params):
     model.compile(loss='categorical_crossentropy', optimizer=params['optimizer'])
 
     model.fit(X_train, Y_train, nb_epoch=params['nb_epochs'], batch_size= params['batch_size'],show_accuracy=True,
-              verbos======e=2,
+              verbose=2,
               validation_data=(X_valid, Y_valid))
 
     res = model.evaluate(X_valid,Y_valid, batch_size=32)

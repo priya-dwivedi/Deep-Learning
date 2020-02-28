@@ -8,7 +8,8 @@ Copy cleaned train and val text to examples/input_data
 
 ## Start Training the GPT-2 model
 
-``` python run_lm_finetuning.py \
+``` 
+python run_lm_finetuning.py \
     --output_dir=output \
     --model_type=gpt2 \
     --model_name_or_path=gpt2-medium \

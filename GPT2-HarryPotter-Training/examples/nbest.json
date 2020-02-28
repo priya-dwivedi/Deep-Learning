@@ -1,0 +1,124 @@
+{
+    "56ddde6b9a695914005b9628": [
+        {
+            "text": "",
+            "probability": 0.9898464986350921,
+            "start_logit": -1.7735379934310913,
+            "end_logit": -1.2499544620513916
+        },
+        {
+            "text": "Normans",
+            "probability": 0.004395873638112621,
+            "start_logit": -3.878025770187378,
+            "end_logit": -4.562350273132324
+        },
+        {
+            "text": "Normans (Norman: Nourmands; French: Normands; Latin: Normanni)",
+            "probability": 0.0014292668960531594,
+            "start_logit": -3.878025770187378,
+            "end_logit": -5.685854911804199
+        },
+        {
+            "text": "The Normans",
+            "probability": 0.0009230392898581822,
+            "start_logit": -5.438775539398193,
+            "end_logit": -4.562350273132324
+        },
+        {
+            "text": "Normandy",
+            "probability": 0.0005713553184634466,
+            "start_logit": -5.1695356369018555,
+            "end_logit": -5.311250686645508
+        },
+        {
+            "text": "Normandy, a region in France.",
+            "probability": 0.0005680571388352643,
+            "start_logit": -5.1695356369018555,
+            "end_logit": -5.317039966583252
+        },
+        {
+            "text": "Rollo, agreed to swear fealty to King Charles III of West Francia.",
+            "probability": 0.0003622973014433368,
+            "start_logit": -7.150130748748779,
+            "end_logit": -3.7862017154693604
+        },
+        {
+            "text": "Norman",
+            "probability": 0.00033334004611057315,
+            "start_logit": -3.878025770187378,
+            "end_logit": -7.141608715057373
+        },
+        {
+            "text": "The Normans (Norman: Nourmands; French: Normands; Latin: Normanni)",
+            "probability": 0.00030011542854929473,
+            "start_logit": -5.438775539398193,
+            "end_logit": -5.685854911804199
+        },
+        {
+            "text": "King Charles III of West Francia.",
+            "probability": 0.0002476493779145708,
+            "start_logit": -7.530581951141357,
+            "end_logit": -3.7862017154693604
+        },
+        {
+            "text": "Normandy, a region in France",
+            "probability": 0.0001487690980356877,
+            "start_logit": -5.1695356369018555,
+            "end_logit": -6.656866550445557
+        },
+        {
+            "text": "gave their name to Normandy",
+            "probability": 0.00013071769472418465,
+            "start_logit": -6.644506931304932,
+            "end_logit": -5.311250686645508
+        },
+        {
+            "text": "gave their name to Normandy, a region in France.",
+            "probability": 0.00012996311972706778,
+            "start_logit": -6.644506931304932,
+            "end_logit": -5.317039966583252
+        },
+        {
+            "text": "Normandy,",
+            "probability": 0.00012351583049465,
+            "start_logit": -5.1695356369018555,
+            "end_logit": -6.842892646789551
+        },
+        {
+            "text": "Normandy, a region in France. They were descended from Norse",
+            "probability": 0.00011605540359178286,
+            "start_logit": -5.1695356369018555,
+            "end_logit": -6.905194282531738
+        },
+        {
+            "text": "Nourmands; French: Normands; Latin: Normanni) were the people who in the 10th and 11th centuries gave their name to Normandy",
+            "probability": 9.402599331064593e-05,
+            "start_logit": -6.973975658416748,
+            "end_logit": -5.311250686645508
+        },
+        {
+            "text": "were the people who in the 10th and 11th centuries gave their name to Normandy",
+            "probability": 7.042825973540373e-05,
+            "start_logit": -7.2629523277282715,
+            "end_logit": -5.311250686645508
+        },
+        {
+            "text": "were the people who in the 10th and 11th centuries gave their name to Normandy, a region in France.",
+            "probability": 7.002170877840497e-05,
+            "start_logit": -7.2629523277282715,
+            "end_logit": -5.317039966583252
+        },
+        {
+            "text": "The Norman",
+            "probability": 6.999426843745736e-05,
+            "start_logit": -5.438775539398193,
+            "end_logit": -7.141608715057373
+        },
+        {
+            "text": "Normanni) were the people who in the 10th and 11th centuries gave their name to Normandy",
+            "probability": 6.90155527321486e-05,
+            "start_logit": -7.283215045928955,
+            "end_logit": -5.311250686645508
+        }
+    ]
+}

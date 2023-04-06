@@ -42,7 +42,7 @@ from object_detection.utils import label_map_util
 flags = tf.app.flags
 flags.DEFINE_string('data_dir', '', 'Root directory to raw pet dataset.')
 flags.DEFINE_string('output_dir', '', 'Path to directory to output TFRecords.')
-flags.DEFINE_string('label_map_path', 'data/pet_label_map.pbtxt',
+flags.DEFINE_string('label_map_path', 'data/toy_label_map.pbtxt',
                     'Path to label map proto')
 FLAGS = flags.FLAGS
 
@@ -57,7 +57,7 @@ def get_class_name_from_filename(file_name):
   Returns:
     A string of the class name.
   """
-  match = re.match(r'([A-Za-z_]+)(_[0-9]+\.jpg)', file_name, re.I)
+  match = re.match(r'([A-Za-z_]+)([0-9]+\.jpg)', file_name, re.I)
   return match.groups()[0]
 
 
@@ -202,8 +202,8 @@ def main(_):
   logging.info('%d training and %d validation examples.',
                len(train_examples), len(val_examples))
 
-  train_output_path = os.path.join(FLAGS.output_dir, 'pet_train.record')
-  val_output_path = os.path.join(FLAGS.output_dir, 'pet_val.record')
+  train_output_path = os.path.join(FLAGS.output_dir, 'items_train.record')
+  val_output_path = os.path.join(FLAGS.output_dir, 'items_val.record')
   create_tf_record(train_output_path, label_map_dict, annotations_dir,
                    image_dir, train_examples)
   create_tf_record(val_output_path, label_map_dict, annotations_dir,
